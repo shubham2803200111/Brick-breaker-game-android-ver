@@ -1,0 +1,257 @@
+<html>
+<head>
+<script src="https://cdn.jsdelivr.net/npm/p5@1.3.1/lib/p5.js"></script>
+
+    </head>
+    <body>
+        <script>
+        var bricks=[];
+        var count=0;
+        var isstart =false;
+        
+            function setup(){
+             createCanvas(350,340);
+             
+             
+             paddle= new Paddle();
+             ball= new Ball();
+             
+             var btn=createButton("start/Restart");
+             btn.touchStarted(start);
+             
+             
+             
+             for(var i=0;i<20;i++){
+                 bricks.push(new Bricks());
+                 
+             }
+             
+             
+             
+             winpara();
+             
+             
+             
+             
+        }
+      function draw(){
+      
+                background(102,255,153);
+                
+                paddle.display();
+                ball.display();
+            
+                if(isstart)ball.update();
+                if(isstart)ball.checkedges();
+                
+                if(ball.meets(paddle) && ball.direction.y >0){
+                ball.direction.y *= -1;    
+                 
+                }
+                
+           for(var j=0;j<bricks.length;j++){
+           
+           
+           if(ball.hits(bricks[j])){
+           ball.direction.y *= -1; 
+           bricks[j].pos.x=500;
+           count+=1;
+            
+           }
+            bricks[j].display();
+               
+            }
+            
+            
+            
+            if(ball.pos.y>340){
+           wintext.style('display','block');
+            isstart =false;
+            
+            wintext.style("color","#ff0000");
+            wintext.html("You Lost");
+       ball.pos=createVector(width/2,height/2);
+       
+            }
+            else{
+                wintext.style('display','block');
+            }
+            
+            
+            if(count==20){
+            wintext.style('display','block');
+            wintext.style("color","#339933");
+            wintext.html("You Win");
+            ball.pos=createVector(width/2,height/2);
+            isstart =false;
+            count=0;
+             
+             
+            }
+            else{
+            wintext.style('display','block');
+            }
+            
+            if(isstart){
+            wintext.style('display','none');
+            
+            }
+            
+                
+                }
+                
+           function Paddle(){
+               this.w=80;
+               this.h=20;
+               this.isgoingright=false;
+               this.isgoingleft=false;
+               this.pos=createVector(110,310);
+               this.display=function(){
+                  fill(204,153,0); rect(this.pos.x,this.pos.y,this.w,this.h);
+                   
+               }
+               
+        
+               
+           }
+           
+           //ball control...
+           
+           
+           function Ball(){
+              
+               this.pos=createVector(width/2,height/2);
+               
+               this.r=10;
+               this.direction=createVector(1,1);
+             this.vel=createVector(1,1).mult(5);
+               
+               this.display=function(){
+     fill(255,102,102); ellipse(this.pos.x,this.pos.y,this.r*2,this.r*2);
+      
+      
+               }
+               
+            this.update=function(){
+         this.pos.x+=this.vel.x*this.direction.x;
+         this.pos.y+=this.vel.y*this.direction.y;
+                   
+               }
+               
+               this.checkedges=function(){
+    if(this.pos.y<this.r && this.direction.y<0){
+        this.direction.y *= -1;
+    }
+    
+    else if(this.pos.x<this.r && this.direction.x<0){
+        this.direction.x *= -1;
+    }
+    else if(this.pos.x>width-this.r && this.direction.x>0){
+        this.direction.x  *= -1;
+    }
+    
+               }
+               
+               
+      this.meets = function(paddle)  {
+          if(this.pos.y<paddle.pos.y &&
+             this.pos.y>paddle.pos.y-this.r &&
+             this.pos.x>paddle.pos.x-this.r &&
+             this.pos.x<paddle.pos.x+paddle.w+this.r  ){
+                 return true;
+             }
+             else{
+                 return false;
+                 
+             }
+             
+      }
+      
+      
+      
+      this.hits=function(bricks){
+          if(this.pos.x<=bricks.pos.x+bricks.w+this.r &&
+     this.pos.y<=bricks.pos.y+bricks.h+this.r && 
+     this.pos.x>=bricks.pos.x-this.r &&
+         this.pos.y>=bricks.pos.y-this.r 
+        )
+         {
+             return true;
+         }
+         else{
+             return false;
+         }
+      }
+      
+      
+               
+           }
+           
+           //bricks generate....
+                
+              function Bricks(){
+                  this.w=30;
+                  this.h=15;
+                //display
+            this.arrx=[10,40,80,120,160,200,240,280,320] ;
+            this.arry=[10,40,70,100,130,150];
+            this.pos=createVector(random(this.arrx),random(this.arry));  
+                  this.display=function(){   
+                      fill(255,102,255);        rect(this.pos.x,this.pos.y,this.w,this.h);
+                    
+                    
+                   }
+                
+            
+                  
+              }
+                
+    
+           
+           //touch scroll ...paddle control
+           
+               function touchMoved(e)
+               {
+              x_axis=e.changedTouches[0].clientX;
+        
+        if(e.changedTouches[0].clientX>270)
+               {
+        paddle.pos.x= 270;
+               }
+        else if(e.changedTouches[0].clientX<5)
+               {
+        paddle.pos.x=5;
+               }
+        else{
+                paddle.pos.x=x_axis;
+               }
+               
+               }
+               
+               
+          //win paragraph....
+          function winpara()      {
+              
+          wintext=createP("");
+          wintext.position(width/2-30,height/2);
+          wintext.style("font-size","30px");
+          
+          
+          
+          
+          }
+          
+          function start(){
+              isstart =true;
+              count=0;
+              bricks=[];
+              for(var i=0;i<20;i++){
+                 bricks.push(new Bricks());
+                 
+             }
+             
+          }
+                
+        </script>    
+    </body>
+</html>
